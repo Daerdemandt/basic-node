@@ -1,0 +1,11 @@
+{
+  "name": "app",
+  "version": "0.0.1",
+  "description": "Basic node app",
+  "license": "MIT",
+  "main": "index.js",
+  "author": "Roman Kuzmichev <daerdemandt@gmail.com>",
+  "dependencies": {
+    "express": "^4"
+  }
+}
