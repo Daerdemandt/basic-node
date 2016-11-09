@@ -1,10 +1,21 @@
-nginx:
-  build: ./nginx
-  links:
-    - node1:node1
-  ports:
-    - "80:80"
-node1:
-  build: ./app
-  ports:
-    - "8080"
+version: '2'
+services:
+  nginx:
+    build: ./nginx
+    links:
+      - node1:node1
+    ports:
+      - "8080:80"
+    volumes:
+      - "/nginx_cache"
+      - "./static:/static:ro" #TODO: make sure that readonly causes no trouble
+  node1:
+    build: ./app
+    ports:
+      - "8080"
+    volumes:
+      - "./app:/app:rw" # TODO: make sure that readonly causes no trouble
+      - "./static:/static:rw"
+      - "/app/node_modules"
+
+
