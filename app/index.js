@@ -36,9 +36,9 @@ let stringToSteamId = function(string, cb) {
 app.get('/parseSteamId', function(req, res, next) {
     let ret = function(error, data) {
         if (error) {
-            res.send(JSON.stringify({'error' : error}))
+            res.send({'error' : error})
         } else {
-            res.send(JSON.stringify(data))
+            res.send(data)
         }
     };
     stringToSteamId(tests['name'], ret);
