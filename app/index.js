@@ -2,9 +2,11 @@
 
 let express = require('express'),
     http = require('http'),
-    steamCommunity = require('steamcommunity');
+    CSteamCommunity = require('steamcommunity');
 
-let steamId = steamCommunity.SteamID;
+let SteamCommunity = new CSteamCommunity();
+
+
 
 const tests = {
     'steamID' : 'STEAM_0:0:61441014',
@@ -21,16 +23,29 @@ let app = express();
 let urlToSteamId = function (url) {};
 
 let stringToSteamId = function(string, cb) {
-    try {
-        let id = new steamId(string);
-        cb(null, {'id64':id.toString()});
-    } catch(error) {
-        if (error.stack.startsWith('Error: Unknown SteamID input format')) {
-            cb('Unsupported format, but we are working on it'); //TODO: support logins, nicknames and URLs
-        } else {
-            cb(error);
-        }
+    const notFound = 'Error: The specified profile could not be found.';
+    let tryAsId = function () {
+        try {
+            let id = new CSteamCommunity.SteamID(string);
+            SteamCommunity.getSteamUser(id, cb);
+        } catch(error) {
+            if (error.stack.startsWith('Error: Unknown SteamID input format')) {
+                cb('Unsupported format, but we are working on it'); //TODO: support URLs
+            } else {
+                cb(error);
+            }
+        };
     };
+
+    SteamCommunity.getSteamUser(string, function(err, result) {
+        if (!err) {
+            cb(result);
+        } else {
+            if (err.stack.startsWith(notFound)) {
+                tryAsId();
+            }
+        }
+    });
 };
 
 
