@@ -1,8 +1,8 @@
 "use strict";
 let 	express = require('express'),
-    	http = require('http'),
+    	http = require('http');
  //   	steamid = require('steamid'),
-    	bodyparser = require('body-parser');
+  //  	bodyparser = require('body-parser');
 
 let app = express();
 
@@ -12,7 +12,7 @@ app.get('/', function(req, res, next) {
 
 function processConvertQuery(request, response)
 {
-	response.send("STUB!");
+	response.status(501).send("STUB!");
 }
 
 

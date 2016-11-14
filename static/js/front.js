@@ -35,7 +35,7 @@ function renderResults(resultsJSON) // for an JSON array of answer form a row of
 	let result = '';
 	forEach(parsed, function (element)
 		{
-			result += '<div class="row">' formColons(element) '</div>';
+			result += '<div class="row">' + formColons(element) + '</div>';
 		});
 	return result;
 }
