@@ -42,7 +42,7 @@ app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
             res.send(data)
         }
     };
-    stringToSteamId(req.query.string, ret);
+    stringToSteamId(decodeURIComponent(req.query.string.trim()), ret);
 });
 
 app.get('/', function(req, res, next) {
