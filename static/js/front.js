@@ -1,3 +1,30 @@
+const typingStoppedDelay = 500;//ms
+const typingElementId = '#textfield00';
+
+function onJQueryReady(method) {
+    window.jQuery ? method() : setTimeout(function() { onJQueryReady(method) }, 50);
+}
+
+onJQueryReady(function(){watchTyping($(typingElementId), performAConvertion);});
+
+function watchTyping(element, action){
+    $element = $(element);
+    let lastKeydown = 0;
+    let actIfNoMoreKeystrokes = function() {
+        console.log((new Date).getTime() - lastKeydown);
+        if ((new Date).getTime() - lastKeydown > typingStoppedDelay) {
+            action($element.val());
+        }
+    };
+    let onEachUpdate = function(){
+        lastKeydown = (new Date).getTime();
+        setTimeout(actIfNoMoreKeystrokes, typingStoppedDelay)
+    };
+    $element.on('keydown', onEachUpdate);
+    $element.bind('paste', onEachUpdate);
+}
+
+
 function performAConvertion (argumentString)
 {
 	let rq = new XMLHttpRequest(); // create query object
