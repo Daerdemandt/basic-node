@@ -54,7 +54,13 @@ app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
         if (error) {
             res.status(500).send({'error' : error})
         } else {
-            res.send(data)
+            res.send({
+                'name' : data.name,
+                'steamId' : data.steamID.toString(),
+                'online' : data.onlineState,
+                'customUrl' : data.customURL,
+                'memberSince' : data.memberSince
+            }); //TODO: more fields here
         }
     };
     stringToSteamId(decodeURIComponent(req.query.string.trim()), ret);

@@ -53,8 +53,10 @@ function renderResults(resultsJSON) {// for an JSON array of answer form a row o
 function formColons(arg) { // for each JSON key-value pair, generate a colon.
 	let result = '';
 	for(let key in arg) {
-		result += '<div class="col-md-6">' +  key.toString() + '</div>';
-		result += '<div class="col-md-6">' +  arg[key].toString() + '</div>';
+	    if (arg[key]) {
+		    result += '<div class="col-md-6">' +  key.toString() + '</div>';
+		    result += '<div class="col-md-6">' +  arg[key].toString() + '</div>';
+		}
 	}
 	return result;
 }
