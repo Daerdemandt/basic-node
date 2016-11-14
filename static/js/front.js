@@ -11,8 +11,7 @@ function watchTyping(element, action){
     $element = $(element);
     let lastKeydown = 0;
     let actIfNoMoreKeystrokes = function() {
-        console.log((new Date).getTime() - lastKeydown);
-        if ((new Date).getTime() - lastKeydown > typingStoppedDelay) {
+        if ((new Date).getTime() - lastKeydown >= typingStoppedDelay) {
             action($element.val());
         }
     };
@@ -25,44 +24,37 @@ function watchTyping(element, action){
 }
 
 
-function performAConvertion (argumentString)
-{
+function performAConvertion (argumentString) {
+    //TODO: display stub on empty input
 	let rq = new XMLHttpRequest(); // create query object
 	rq.open('GET', '/api/arbitraryStringToSteamId?string=' +  encodeURIComponent(argumentString), true); // open connection back
 	rq.onreadystatechange = function() {
 		let targetDiv = document.getElementById('container00'); // define hardcoded target
-		if(this.readyState == 4 && this.status == 200) {
-		  // have responseText, may work with it!
-		  targetDiv.innerHTML = renderResults(this.responseText);
+		if (rq.readyState == 4) {
+		    if (rq.status == 200) {
+		         targetDiv.innerHTML = renderResults(rq.responseText);
+		    } else {
+		        targetDiv.innerHTML = 'API Error' + (rq.responseText != undefined ? ':' + rq.responseText  : '');
+		    }
 		} else {
-		    if(this.status == undefined) {
-			    // state changed, but not our turn. Render waiting animation.
-			    targetDiv.innerHTML = renderWaitingAni();
-			} else {
-			    // state changed, status defined, but, obviously, not 200. Smth wrong.
-			    targetDiv.innerHTML = 'API Error' + (this.responseText != undefined ? ':' + this.responseText  : '');
-			}
+		    targetDiv.innerHTML = renderWaitingAni();
 		}
 	};
 
-	rq.setRequestHeader('Content-Type', 'text/plain');
+	rq.setRequestHeader('Content-Type', 'application/json');
 	rq.send();
 }
 
 function renderResults(resultsJSON) {// for an JSON array of answer form a row of colons
-	let parsed = JSON.parse(resultsJSON);
-	let result = '';
-	forEach(parsed, function (element) {
-		result += '<div class="row">' + formColons(element) + '</div>';
-	});
-	return result;
+    //TODO: use a *table* to display the table
+	return '<div class="row">' + formColons(JSON.parse(resultsJSON)) + '</div>';
 }
 
 function formColons(arg) { // for each JSON key-value pair, generate a colon.
 	let result = '';
 	for(let key in arg) {
-		let value = arg[key];
-		result += '<div class="col-md-6">' +  value.toString() + '</div>'; 
+		result += '<div class="col-md-6">' +  key.toString() + '</div>';
+		result += '<div class="col-md-6">' +  arg[key].toString() + '</div>';
 	}
 	return result;
 }
