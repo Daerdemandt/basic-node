@@ -1,7 +1,7 @@
 function performAConvertion (argumentString)
 {
 	let rq = new XMLHttpRequest(); // create query object
-	rq.open('POST', '/api/convert', true); // open connection back
+	rq.open('GET', '/api/arbitraryStringToSteamId?string=' +  encodeURIComponent(argumentString), true); // open connection back
 	rq.onreadystatechange = function()
 		{
 			let targetDiv = document.getElementById('container00'); // define hardcoded target
@@ -26,7 +26,7 @@ function performAConvertion (argumentString)
 		};
 
 	rq.setRequestHeader('Content-Type', 'text/plain');
-	rq.send(argumentString);
+	rq.send();
 }
 
 function renderResults(resultsJSON) // for an JSON array of answer form a row of colons 
