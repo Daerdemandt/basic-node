@@ -37,7 +37,7 @@ let stringToSteamId = function(string, cb) {
 app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
     let ret = function(error, data) {
         if (error) {
-            res.send({'error' : error})
+            res.status(500).send({'error' : error})
         } else {
             res.send(data)
         }
