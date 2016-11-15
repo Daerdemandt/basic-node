@@ -39,7 +39,7 @@ let stringToSteamId = function(string, cb) {
 
     SteamCommunity.getSteamUser(string, function(err, result) {
         if (!err) {
-            cb(result);
+            cb(null, result);
         } else {
             if (err.stack.startsWith(notFound)) {
                 tryAsId();
