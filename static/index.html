@@ -15,6 +15,7 @@
 		>
 		<link rel='stylesheet' href='/static/css/additional.css'>
 		<link rel='icon' href='/static/favicon.ico'>
+		<script src="https://cdn.rawgit.com/zenorocha/clipboard.js/v1.5.13/dist/clipboard.min.js"></script>
 		<script src='/static/js/front.js' async> </script>
 	</head>
 	<body>
@@ -38,6 +39,9 @@
 					<h2>Paste some kind of SteamID below</h2>
 					<input type='text' id='textfield00' class="center-block" style="width:100%">
 					<div id='container00'></div>
+					<script>
+						new Clipboard('.btn');
+					</script>
 				</div>
 			</div>
 		</div>
