@@ -54,8 +54,15 @@ function formColons(arg) { // for each JSON key-value pair, generate a colon.
 	let result = '';
 	for(let key in arg) {
 	    if (arg[key]) {
-		    result += '<div class="col-md-6">' +  key.toString() + '</div>';
-		    result += '<div class="col-md-6">' +  arg[key].toString() + '</div>';
+		    result += `<div class="col-md-4">
+		        ${key.toString()}
+		    </div>`;
+		    result += `<div class="col-md-8">
+		        <button class="btn" data-clipboard-target="#${key}" title="Copy ${key} to clipboard" style="margin-right:2em">
+				    <img src="/static/clipboard.png" style="width:2em">
+				</button>
+		        <span id="${key}">${arg[key].toString()}</span>
+		    </div>`;
 		}
 	}
 	return result;
