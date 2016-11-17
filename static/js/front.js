@@ -49,9 +49,9 @@ function performAConvertion (argumentString) {
 		}
 	};
 
+	renderWaitingAni(); // will be overwritten with renderResults() later
 	rq.setRequestHeader('Content-Type', 'application/json');
 	rq.send();
-	renderWaitingAni(); // will be overwritten with renderResults() later
 	}
 }
 
