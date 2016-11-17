@@ -21,6 +21,11 @@ const tests = {
 
 let app = express();
 
+function checkOddnessOutputInt (input) {
+	let isEven = (input == parseFloat(input) ? !(input % 2) : void 0); // boolean!
+	return isEven ? 0 : 1;
+}
+
 let urlToSteamId = function (url) {
 	let dissected = mUrl.parse(url);
 	if(dissected.hostname == 'steamcommunity.com') // may or may not start with 'http://'
@@ -56,9 +61,10 @@ let stringToSteamId = function(string, cb) {
         } else {
             if (err.stack.startsWith(notFound)) {
                 let asInt = parseInt(string);
-                if (asInt) {
+                let idParity = checkOddnessOutputInt(asInt);
+		if (asInt) {
                     let asOld = `STEAM_0:0:${asInt}`;
-                    let asV3 = `[U:1:${asInt}]`;
+                    let asV3 = `[U:${idParity}:${asInt}]`;
                     tryUntilResult([asV3, string, asOld], tryAsId, cb, null); // looks like v3 is the main priority
                 }
 		else // assuming NaN, trying as url 
