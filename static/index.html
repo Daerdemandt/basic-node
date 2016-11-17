@@ -13,8 +13,7 @@
 				integrity="sha384-L/tgI3wSsbb3f/nW9V6Yqlaw3Gj7mpE56LWrhew/c8MIhAYWZ/FNirA64AVkB5pI"
 				crossorigin="anonymous"
 		>
-		<!--<link rel='stylesheet' href='/static/css/additional.css'>-->
-		<!-- Commented out until there would be something useful. As of now, it simply wastes a connection. -->
+		<link rel='stylesheet' href='/static/css/additional.css'>
 		<link rel='icon' href='/static/favicon.ico'>
 		<script src="https://cdn.rawgit.com/zenorocha/clipboard.js/v1.5.13/dist/clipboard.min.js"></script>
 		<script src='/static/js/front.js' async> </script>
@@ -24,7 +23,7 @@
             <header class="row">
 				<div class="col-md-2 col-md-offset-1">
 					<a href="#">
-						<img src="/static/icon-normal.png" class="logo visible-lg" style="margin-left:auto;">
+						<img src="/static/icon-normal.png" class="app-logo logo visible-lg">
 					</a>
 				</div>
                 <div class="col-md-6">
@@ -38,10 +37,10 @@
 				<div class="col-md-3"></div>
 				<div class='col-md-6'>
 					<h2>Paste some kind of SteamID below</h2>
-					<input type='text' id='textfield00' class="center-block" style="width:100%">
+					<input type='text' id='textfield00' class="app-center-block">
 					<div id='container00'></div>
 					<script>
-						new Clipboard('.btn');
+						new Clipboard('.app-btn');
 					</script>
 				</div>
 			</div>

@@ -1,4 +1,3 @@
-//TODO: repair clipboard.js refusing to work with certain elements (links, customUrls, ?)
 const typingStoppedDelay = 500;//ms
 const typingElementId = '#textfield00';
 const emptyInputMessage = 'Input is empty';
