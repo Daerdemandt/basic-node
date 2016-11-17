@@ -1,5 +1,6 @@
 "use strict";
 
+
 let express = require('express'),
     mUrl = require('url'),
     http = require('http'),
@@ -22,8 +23,9 @@ const tests = {
 let app = express();
 
 function checkOddnessOutputInt (input) {
-	let isEven = (input == parseFloat(input) ? !(input % 2) : void 0); // boolean!
-	return isEven ? 0 : 1;
+	let tailNumber = +input.split('').pop(); // WAAAAAAAAGH
+	let isEven = (tailNumber === parseFloat(tailNumber) ? !(tailNumber % 2) : void 0); // boolean!
+	return isEven ? '0' : '1';
 }
 
 let urlToSteamId = function (url) {
@@ -60,12 +62,17 @@ let stringToSteamId = function(string, cb) {
             cb(null, result);
         } else {
             if (err.stack.startsWith(notFound)) {
-                let asInt = parseInt(string);
-                let idParity = checkOddnessOutputInt(asInt);
-		if (asInt) {
-                    let asOld = `STEAM_0:0:${asInt}`;
-                    let asV3 = `[U:${idParity}:${asInt}]`;
-                    tryUntilResult([asV3, string, asOld], tryAsId, cb, null); // looks like v3 is the main priority
+                let idParity = checkOddnessOutputInt(string);
+		let queryMethodsArray = []; // decide if a particular query is sane, fill array up, then pass it to worker
+		if (parseInt(string)) {
+			
+                    queryMethodsArray.push('STEAM_0:' + idParity + ':' + string);
+		    queryMethodsArray.push(string);
+                    if(Number.isSafeInteger(parseInt(string))) {
+			queryMethodsArray.push('[U:1:' + string + ']');
+		    }
+		    queryMethodsArray.reverse();
+                    tryUntilResult(queryMethodsArray, tryAsId, cb, null); // looks like v3 is the main priority
                 }
 		else // assuming NaN, trying as url 
 		{
