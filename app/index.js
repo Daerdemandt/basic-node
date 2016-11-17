@@ -20,7 +20,20 @@ const tests = {
 
 let app = express();
 
-let urlToSteamId = function (url) {};
+let isCommunityUrl = function (element)
+{
+	return (element == 'steamcommunity.com');
+}
+
+let urlToSteamId = function (url) {
+	let dissected = url.split('/');
+	if(dissected.some(isCommunityUrl)) // may or may not start with 'http://'
+	{
+		let trail = dissected.pop();
+		return (trail == '' ? dissected.pop() : trail); // may or may not end with trailing slash
+	}
+	else { return null; }
+};
 
 let stringToSteamId = function(string, cb) {
     const notFound = 'Error: The specified profile could not be found.';
@@ -51,6 +64,11 @@ let stringToSteamId = function(string, cb) {
                     let asV3 = `[U:1:${asInt}]`;
                     tryUntilResult([asV3, string, asOld], tryAsId, cb, null); // looks like v3 is the main priority
                 }
+		else // assuming NaN, trying as url 
+		{
+		    let asId64 = urlToSteamId(string);
+		    tryAsId(asId64, cb);
+		}
             }
         }
     });
