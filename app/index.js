@@ -1,6 +1,7 @@
 "use strict";
 
 let express = require('express'),
+    mUrl = require('url'),
     http = require('http'),
     CSteamCommunity = require('steamcommunity');
 
@@ -20,17 +21,13 @@ const tests = {
 
 let app = express();
 
-let isCommunityUrl = function (element)
-{
-	return (element == 'steamcommunity.com');
-}
-
 let urlToSteamId = function (url) {
-	let dissected = url.split('/');
-	if(dissected.some(isCommunityUrl)) // may or may not start with 'http://'
+	let dissected = mUrl.parse(url);
+	if(dissected.hostname == 'steamcommunity.com') // may or may not start with 'http://'
 	{
-		let trail = dissected.pop();
-		return (trail == '' ? dissected.pop() : trail); // may or may not end with trailing slash
+		let pathArray = dissected.pathname.split('/');
+		let trail = pathArray.pop();
+		return (trail == '' ? pathArray.pop() : trail); // may or may not end with trailing slash
 	}
 	else { return null; }
 };

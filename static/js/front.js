@@ -1,8 +1,9 @@
 //TODO: repair clipboard.js refusing to work with certain elements (links, customUrls, ?)
 const typingStoppedDelay = 500;//ms
 const typingElementId = '#textfield00';
-const emptyInputMessage = 'Input is empty';
+const emptyInputMessage = 'Input is empty.';
 const pleaseWaitMessage = 'Working...';
+const noUserMessage = 'Specified user cannot be found.';
 
 function onJQueryReady(method) {
     window.jQuery ? method() : setTimeout(function() { onJQueryReady(method) }, 50);
@@ -43,11 +44,15 @@ function performAConvertion (argumentString) {
 		if (rq.readyState == 4) {
 		    if (rq.status == 200) {
 		         targetDiv.innerHTML = renderResults(rq.responseText);
-		    } else {
+		    } else 
+			if (rq.status == 404) {
+			renderNotFound();
+			} 
+			else {
 		        targetDiv.innerHTML = 'API Error' + (rq.responseText != undefined ? ':' + rq.responseText  : '');
 		    }
 		} else {
-		    targetDiv.innerHTML = renderWaitingAni();
+		    renderWaitingAni();
 		}
 	};
 
@@ -90,13 +95,22 @@ function formColons(arg) { // for each JSON key-value pair, generate a colon.
 	return result;
 }
 
+function renderNotFound() {
+	let targetDiv = document.getElementById('container00');
+	targetDiv.innerHTML = `<div id="noSuchSteamUser" class="row">
+					<div class="col-md-12">
+						${noUserMessage}
+					</div>
+				</div>`;
+}
+
 function renderWaitingAni() {
 	let targetDiv = document.getElementById('container00');
 	targetDiv.innerHTML = `<div id="pleaseWait" class="row">
-			<div class="col-md-10">
+			<div class="col-md-12">
 				${pleaseWaitMessage}
 			</div>
-			<div class="col-md-2">
+			<div class="col-md-12">
 				<img class="app-waitingani img-rounded" src="/static/steam_ani.gif">
 			</div>
 		</div>`;

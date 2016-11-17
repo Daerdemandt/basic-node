@@ -14,3 +14,15 @@
 #container00 {
 	margin-top: 2em;
 }
+.app-header {
+	background: url('/static/headr_bg.png');
+}
+.header_text {
+	font-weight: bold;
+}
+.header_link {
+	font-weight: bold;
+}
+#pleaseWait {
+	vertical-align: center;
+}
