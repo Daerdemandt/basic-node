@@ -18,9 +18,11 @@ function watchTyping(element, action){
             action($element.val());
         }
     };
-    let onEachUpdate = function(){
+    let onEachUpdate = function(e){
         lastKeydown = (new Date).getTime();
-        setTimeout(actIfNoMoreKeystrokes, typingStoppedDelay)
+	if((!e.altKey) && (!e.ctrlKey) && (!e.metaKey)) {  
+            setTimeout(actIfNoMoreKeystrokes, typingStoppedDelay)
+	}
     };
     $element.on('keydown', onEachUpdate);
     $element.bind('paste', onEachUpdate);
