@@ -1,5 +1,6 @@
 const typingStoppedDelay = 500;//ms
 const typingElementId = '#textfield00';
+const emptyInputMessage = 'Input is empty';
 
 function onJQueryReady(method) {
     window.jQuery ? method() : setTimeout(function() { onJQueryReady(method) }, 50);
@@ -25,7 +26,12 @@ function watchTyping(element, action){
 
 
 function performAConvertion (argumentString) {
-    //TODO: display stub on empty input
+	if (argumentString == '')
+	{
+		renderStub();
+	}
+	else
+	{
 	let rq = new XMLHttpRequest(); // create query object
 	rq.open('GET', '/api/arbitraryStringToSteamId?string=' +  encodeURIComponent(argumentString), true); // open connection back
 	rq.onreadystatechange = function() {
@@ -43,11 +49,22 @@ function performAConvertion (argumentString) {
 
 	rq.setRequestHeader('Content-Type', 'application/json');
 	rq.send();
+	}
 }
 
 function renderResults(resultsJSON) {// for an JSON array of answer form a row of colons
     //TODO: use a *table* to display the table
 	return '<div class="row">' + formColons(JSON.parse(resultsJSON)) + '</div>';
+}
+
+function renderStub() // called when convertion discovers empty input
+{
+	let targetDiv = document.getElementById('container00');
+	targetDiv.innerHTML = `	<div class="row">
+	       				<div class="col-md-12">
+						${emptyInputMessage}
+					</div>
+				</div>`;
 }
 
 function formColons(arg) { // for each JSON key-value pair, generate a colon.
