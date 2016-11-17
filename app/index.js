@@ -111,20 +111,20 @@ app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
 		let theID = data.steamID; // using steamid package for now, may be rewritten to get rid of it later
             res.send({
                 'name' : data.name,
-		'Steam Universe' : theID.universe,
-		'Account Type' : theID.type,
-		'Account Instance' : theID.instance,
-		'steam2-old' : theID.getSteam2RenderedID(),
-		'steam2-new' : theID.getSteam2RenderedID(true),
-		'steamId3' : theID.getSteam3RenderedID(),
-		'steam3-accountid' : theID.accountid,
+		'steamUniverse' : theID.universe,
+		'accountType' : theID.type,
+		'accountInstance' : theID.instance,
+		'steam2Old' : theID.getSteam2RenderedID(),
+		'steam2New' : theID.getSteam2RenderedID(true),
+		'steamId32' : theID.getSteam3RenderedID(),
+		'steam32AccountId' : theID.accountid,
                 'steamId64' : theID.toString(),
-                'customUrl' : data.customURL,
-		'Profile URL' : 'http://steamcommunity.com/profiles/' + theID.toString(),
-		'is groupchat?' : theID.isGroupChat(),
-		'is Steam Lobby?' : theID.isLobby(),
+                'customURL' : data.customURL,
+		'profileURL' : 'http://steamcommunity.com/profiles/' + theID.toString(),
+		'isGroupchat' : theID.isGroupChat(),
+		'isSteamLobby' : theID.isLobby(),
                 'memberSince' : data.memberSince,
-                'online?' : data.onlineState
+                'isOnline' : data.onlineState
             }); //TODO: more fields here
         }
     };

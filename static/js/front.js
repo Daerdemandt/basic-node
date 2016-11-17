@@ -1,9 +1,25 @@
-//TODO: repair clipboard.js refusing to work with certain elements (links, customUrls, ?)
 const typingStoppedDelay = 500;//ms
 const typingElementId = '#textfield00';
 const emptyInputMessage = 'Input is empty.';
 const pleaseWaitMessage = 'Working...';
 const noUserMessage = 'Specified user cannot be found.';
+const answerFieldsEnum = {	'name' : 'Steam User Name',
+				'steamUniverse' : 'Steam Universe',
+				'accountType' : 'Steam Account Type',
+				'accountInstance' : 'Account Instance',
+				'steam2Old' : 'Old Steam ID format',
+				'steam2New' : 'New Steam ID format',
+				'steamId32' : 'Steam CommunityID 32bit format',
+				'steam32AccountId' : 'CommunityID32 trailing number',
+		                'steamId64' : 'Steam CommunityID 64bit format',
+		                'customURL' : 'Steam Community Custom URL',
+				'profileURL' : 'Link to Steam Community Profile',
+				'isGroupchat' : 'Is this Account a Steam GroupChat?',
+				'isSteamLobby' : 'Is this Account a Steam Lobby?',
+		                'memberSince' : 'On Steam since: ',
+		                'isOnline' : 'Visibility Status'
+};
+
 
 function onJQueryReady(method) {
     window.jQuery ? method() : setTimeout(function() { onJQueryReady(method) }, 50);
@@ -92,13 +108,16 @@ function formColons(arg) { // for each JSON key-value pair, generate a colon.
 	for(let key in arg) {
 	    if (arg[key]) {
 		    result += `<div class="col-md-4">
-		        ${key.toString()}
+		        ${answerFieldsEnum[key].toString()}
 		    </div>`;
 		    result += `<div class="col-md-8">
 		        <button class="app-btn" data-clipboard-target="#${key}" title="Copy ${key} to clipboard">
 				    <img class="app-cblabel" src="/static/clipboard.png">
 				</button>
-		        <span id="${key}">${arg[key].toString()}</span>
+		        <span id="${key}">${key.toString() == 'profileURL' ?
+			 		'<a href="' + arg[key].toString() + '">'+ arg[key].toString() +'</a>' 
+				: 
+					(arg[key].toString())}</span>
 		    </div>`;
 		}
 	}
