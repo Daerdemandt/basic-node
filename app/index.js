@@ -49,7 +49,7 @@ let stringToSteamId = function(string, cb) {
                 if (asInt) {
                     let asOld = `STEAM_0:0:${asInt}`;
                     let asV3 = `[U:1:${asInt}]`;
-                    tryUntilResult([string, asOld, asV3], tryAsId, cb, null);
+                    tryUntilResult([asV3, string, asOld], tryAsId, cb, null); // looks like v3 is the main priority
                 }
             }
         }
