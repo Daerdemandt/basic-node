@@ -4,26 +4,39 @@ const typingElementId = '#textfield00';
 const emptyInputMessage = 'Input is empty';
 const pleaseWaitMessage = 'Working...';
 
-function onJQueryReady(method) {
-    window.jQuery ? method() : setTimeout(function() { onJQueryReady(method) }, 50);
+function $$(selector, element)
+{
+	return (element || document).querySelectorAll(selector);
 }
 
-onJQueryReady(function(){watchTyping($(typingElementId), performAConvertion);});
+function onDOMReady(fn)
+{
+	if (document.readyState != 'loading')
+	{
+		fn();
+	}
+	else
+	{
+		document.addEventListener('DOMContentLoaded', fn);
+	}
+}
+
+onDOMReady(function(){ watchTyping(typingElementId, performAConvertion); });
 
 function watchTyping(element, action){
-    $element = $(element);
+    let elt = $$(element).item(0); // grab first one we see, guaranteed to exist while typingElementId exists
     let lastKeydown = 0;
     let actIfNoMoreKeystrokes = function() {
         if ((new Date).getTime() - lastKeydown >= typingStoppedDelay) {
-            action($element.val());
+            action(elt.value);
         }
     };
     let onEachUpdate = function(){
         lastKeydown = (new Date).getTime();
         setTimeout(actIfNoMoreKeystrokes, typingStoppedDelay)
     };
-    $element.on('keydown', onEachUpdate);
-    $element.bind('paste', onEachUpdate);
+    elt.addEventListener('keydown', onEachUpdate);
+    elt.addEventListener('paste', onEachUpdate);
 }
 
 
