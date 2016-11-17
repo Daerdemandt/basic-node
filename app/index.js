@@ -2,6 +2,7 @@
 
 let express = require('express'),
     http = require('http'),
+    converter = require('steamid'),
     CSteamCommunity = require('steamcommunity');
 
 let SteamCommunity = new CSteamCommunity();
@@ -54,15 +55,24 @@ app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
         if (error) {
             res.status(500).send({'error' : error})
         } else {
-		console.log(data);
+		let id64 = data.steamID.toString(); // was used in 2 places already, needs a shorthand
+		let tonsOfData = new converter(id64); // using steamid package for now, may be rewritten to get rid of it later
             res.send({
                 'name' : data.name,
-		'steamId3' : data.steamID.accountid.toString(),
-                'steamId64' : data.steamID.toString(),
-                'online' : data.onlineState,
+		'Steam Universe' : tonsOfData.universe,
+		'Account Type' : tonsOfData.type,
+		'Account Instance' : tonsOfData.instance,
+		'steam2-old' : tonsOfData.getSteam2RenderedID(),
+		'steam2-new' : tonsOfData.getSteam2RenderedID(true),
+		'steamId3' : tonsOfData.getSteam3RenderedID(),
+		'steam3-accountid' : tonsOfData.accountid,
+                'steamId64' : id64,
                 'customUrl' : data.customURL,
-		'Profile URL' : 'http://steamcommunity.com/profiles/' + data.steamID.toString(),
-                'memberSince' : data.memberSince
+		'Profile URL' : 'http://steamcommunity.com/profiles/' + id64,
+		'is groupchat?' : tonsOfData.isGroupChat(),
+		'is Steam Lobby?' : tonsOfData.isLobby(),
+                'memberSince' : data.memberSince,
+                'online?' : data.onlineState
             }); //TODO: more fields here
         }
     };
