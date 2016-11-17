@@ -9,7 +9,10 @@ function onJQueryReady(method) {
     window.jQuery ? method() : setTimeout(function() { onJQueryReady(method) }, 50);
 }
 
-onJQueryReady(function(){watchTyping($(typingElementId), performAConvertion);});
+onJQueryReady(function(){ 
+	document.getElementById('inputarea00').className = 'col-md-6 app-query-idle';
+	watchTyping($(typingElementId), performAConvertion);
+});
 
 function watchTyping(element, action){
     $element = $(element);
@@ -22,7 +25,8 @@ function watchTyping(element, action){
     let onEachUpdate = function(e){
         lastKeydown = (new Date).getTime();
 	if((!e.altKey) && (!e.ctrlKey) && (!e.metaKey)) {  
-            setTimeout(actIfNoMoreKeystrokes, typingStoppedDelay)
+            setTimeout(actIfNoMoreKeystrokes, typingStoppedDelay);
+	    document.getElementById('inputarea00').className = 'col-md-6 app-query-idle';
 	}
     };
     $element.on('keydown', onEachUpdate);
@@ -33,6 +37,7 @@ function watchTyping(element, action){
 function performAConvertion (argumentString) {
 	if (argumentString == '')
 	{
+		document.getElementById('inputarea00').className = 'col-md-6 app-query-empty-input';
 		renderStub();
 	}
 	else
@@ -41,17 +46,22 @@ function performAConvertion (argumentString) {
 	rq.open('GET', '/api/arbitraryStringToSteamId?string=' +  encodeURIComponent(argumentString), true); // open connection back
 	rq.onreadystatechange = function() {
 		let targetDiv = document.getElementById('container00'); // define hardcoded target
+		let inputDiv = document.getElementById('inputarea00'); // a target for styling
 		if (rq.readyState == 4) {
 		    if (rq.status == 200) {
+			 inputDiv.className = 'col-md-6 app-query-success';
 		         targetDiv.innerHTML = renderResults(rq.responseText);
 		    } else 
 			if (rq.status == 404) {
+			inputDiv.className = 'col-md-6 app-query-no-user'
 			renderNotFound();
 			} 
 			else {
+			inputDiv.className = 'col-md-6 app-query-no-user'
 		        targetDiv.innerHTML = 'API Error' + (rq.responseText != undefined ? ':' + rq.responseText  : '');
 		    }
 		} else {
+		    inputDiv.className = 'col-md-6 app-query-working';
 		    renderWaitingAni();
 		}
 	};

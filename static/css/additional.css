@@ -14,6 +14,10 @@
 #container00 {
 	margin-top: 2em;
 }
+#inputarea00 {
+	margin-top: 2em;
+	padding-bottom: 1em;
+}
 .app-header {
 	background: url('/static/headr_bg.png');
 }
@@ -24,5 +28,21 @@
 	font-weight: bold;
 }
 #pleaseWait {
+	text-align: center;
 	vertical-align: center;
+}
+.app-query-success {
+	background: url('/static/success_bg.png');
+}
+.app-query-no-user {
+	background: url('/static/no_user_bg.png');
+}
+.app-query-working {
+	background: url('/static/headr_bg.png');
+}
+.app-query-empty-input {
+	background: url('/static/empty_bg.png');
+}
+.app-query-idle {
+	background: none;
 }
