@@ -76,8 +76,20 @@ let stringToSteamId = function(string, cb) {
                 }
 		else // assuming NaN, trying as url 
 		{
-		    let asId64 = urlToSteamId(string);
-		    tryAsId(asId64, cb);
+		    let asURLTrail = urlToSteamId(string);
+		    if(parseInt(asURLTrail)) { // URL appearing to end in id64
+			tryAsId(asURLTrail, cb); // assume community/profiles/id64 url template, operate
+		    }
+		    else { // URL appearing to end in customURL
+		    	SteamCommunity.getSteamUser(asURLTrail, function(final_error, result){ 
+				if(!final_error) {
+					cb(null, result); // assume community/id/customID url template, operate
+				} else {
+					cb(final_error); // we support no more input formats for now. Pass error down.
+				}
+		       
+			});
+		    }
 		}
             }
         }
@@ -108,7 +120,7 @@ app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
         } else if (!data) {
             res.status(404).send({'error' : 'not found'});
         } else {
-		let theID = data.steamID; // using steamid package for now, may be rewritten to get rid of it later
+		let theID = data.steamID; 
             res.send({
                 'name' : data.name,
 		'steamUniverse' : theID.universe,
