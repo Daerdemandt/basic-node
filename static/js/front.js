@@ -74,7 +74,9 @@ function performAConvertion (argumentString) {
 			} 
 			else {
 			inputDiv.className = 'col-md-6 app-query-no-user'
-		        targetDiv.innerHTML = 'API Error' + (rq.responseText != undefined ? ':' + rq.responseText  : '');
+		        targetDiv.innerHTML = '<p>API Error. Have you accidentally provided malformed input?</p>'; 
+		        targetDiv.innerHTML += '<p>Exactly, error is: </p>' + '<p>' + (rq.responseText != undefined ? rq.responseText  : 'Totally unknown error') + '</p>';
+		        targetDiv.innerHTML += '<p>If you are 100% sure your input is valid, please contact devs for some bugsquashing to happen.</p>';
 		    }
 		} else {
 		    inputDiv.className = 'col-md-6 app-query-working';

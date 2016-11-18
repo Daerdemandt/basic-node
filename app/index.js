@@ -56,12 +56,14 @@ let stringToSteamId = function(string, cb) {
             }
         };
     };
+	console.log('Will be operating with ', string, ' today');
 
     SteamCommunity.getSteamUser(string, function(err, result) {
         if (!err) {
             cb(null, result);
-        } else {
+        } else { 
             if (err.stack.startsWith(notFound)) {
+		    console.log('ohhai, stack indeed starts with notFound, typeof string is', typeof(string));
                 let idParity = checkOddnessOutputInt(string);
 		let queryMethodsArray = []; // decide if a particular query is sane, fill array up, then pass it to worker
 		if (parseInt(string)) {
@@ -72,28 +74,34 @@ let stringToSteamId = function(string, cb) {
 			queryMethodsArray.push('[U:1:' + string + ']');
 		    }
 		    queryMethodsArray.reverse();
+			console.log('And here is what we go into persistent worker', queryMethodsArray);
                     tryUntilResult(queryMethodsArray, tryAsId, cb, null); // looks like v3 is the main priority
-                }
-		else // assuming NaN, trying as url 
+                } else // assuming URL or (exotic SOB!) uniform SteamID
 		{
 		    let asURLTrail = urlToSteamId(string);
-		    if(parseInt(asURLTrail)) { // URL appearing to end in id64
+		    if(parseInt(asURLTrail)) { // is a URL, also appearing to end in id64
 			tryAsId(asURLTrail, cb); // assume community/profiles/id64 url template, operate
 		    }
-		    else { // URL appearing to end in customURL
-		    	SteamCommunity.getSteamUser(asURLTrail, function(final_error, result){ 
+		    else { // uniform SteamID or a URL appearing to end in customURL
+			    console.log('hi there, error stack starts with', err.stack);
+		    	   if (mUrl.parse(string).pathname == 'steamcommunity.com') { // can distinguish vaild hostname, MUST be a URL
+			    	SteamCommunity.getSteamUser(asURLTrail, function(final_error, result){ 
 				if(!final_error) {
 					cb(null, result); // assume community/id/customID url template, operate
 				} else {
 					cb(final_error); // we support no more input formats for now. Pass error down.
 				}
 		       
-			});
+			});} else { // most definitely a uniform ID, if not, well, we can always pretend nothing happened. 
+				tryAsId(string, cb);
+			}
+
 		    }
 		}
             }
         }
-    });
+    });  
+			
 };
 ///*
 let tryUntilResult = function(items, process, successCallback, stubData) {
