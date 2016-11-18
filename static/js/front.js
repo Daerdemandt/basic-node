@@ -4,14 +4,11 @@ const emptyInputMessage = 'Input is empty.';
 const pleaseWaitMessage = 'Working...';
 const noUserMessage = 'Specified user cannot be found.';
 const answerFieldsEnum = {	'name' : 'Steam User Name',
-				'steamUniverse' : 'Steam Universe',
-				'accountType' : 'Steam Account Type',
-				'accountInstance' : 'Account Instance',
+		                'steamId64' : 'Steam CommunityID 64bit format',
+				'steam32AccountId' : 'CommunityID32 trailing number',
+				'steamId32' : 'Steam CommunityID 32bit format',
 				'steam2Old' : 'Old Steam ID format',
 				'steam2New' : 'New Steam ID format',
-				'steamId32' : 'Steam CommunityID 32bit format',
-				'steam32AccountId' : 'CommunityID32 trailing number',
-		                'steamId64' : 'Steam CommunityID 64bit format',
 		                'customURL' : 'Steam Community Custom URL',
 				'profileURL' : 'Link to Steam Community Profile',
 				'isGroupchat' : 'Is this Account a Steam GroupChat?',
