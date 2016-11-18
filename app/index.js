@@ -4,6 +4,7 @@
 let express = require('express'),
     mUrl = require('url'),
     http = require('http'),
+    monads = require('./monads.js'),
     CSteamCommunity = require('steamcommunity');
 
 let SteamCommunity = new CSteamCommunity();
