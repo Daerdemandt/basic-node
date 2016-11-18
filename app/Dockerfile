@@ -1,4 +1,4 @@
-FROM node:argon
+FROM node:7
 
 MAINTAINER Roman Kuzmichev daerdemandt@gmail.com
 

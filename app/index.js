@@ -105,9 +105,7 @@ let tryUntilResult = function(items, process, successCallback, stubData) {
     if (0 == items.length) {
         successCallback(stubData);
     } else {
-        //let [current, rest] = [items[0], items.slice(1)];
-        let current = items[0];
-        let rest = items.slice(1);
+        let [current, rest] = [items[0], items.slice(1)];
         process(current, function(err, data) {
             if (err || data) {
                 successCallback(err, data);
