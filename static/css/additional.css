@@ -46,3 +46,9 @@
 .app-query-idle {
 	background: none;
 }
+.app-footer {
+	vertical-align: center;
+}
+.app-footer-textdiv {
+	margin-top: 4em;
+}
