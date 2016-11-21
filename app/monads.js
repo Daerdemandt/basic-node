@@ -1,3 +1,6 @@
+//TODO: preserve function names while decorating
+//TODO: stub the end of a chain with callback that does nothing
+
 let async = (fun) => function(data, cb) {process.nextTick(() => cb(fun(data)));}
 let chainSync = (...funs) => function(data) {
     let result = data;
@@ -9,6 +12,24 @@ let chain = (...funs) => function(data) {
     let chain_core_reverse = (next, fun) => function(data) {fun(data, next)};
     let chain_call = funs.reverse().reduce(chain_core_reverse);
     process.nextTick(function() {chain_call(data)});
+};
+let safeAsync = (fun) => (err, data, cb) => process.nextTick(function(){
+	if (err) {
+		cb(err);
+		return;
+	}
+	let newError, result;
+	try {
+		result = fun(data);
+	} catch (err) {
+		newError = err;
+	}
+	cb(newError, result);
+});
+let safeChain = (...funs) => function(data) {
+	let chain_core_reverse = (next, fun) => function(err, data) {fun(err, data, next)};
+    let chain_call = funs.reverse().reduce(chain_core_reverse);
+    process.nextTick(function() {chain_call(null, data)});
 };
 class IdentityMonad {
     constructor() {
@@ -48,6 +69,7 @@ class IdentityMonad {
             fun(rawData, cb, monad, packedData, decoratedCallback);
         };
         result.absorbMonadicContext = function(monad_, packedData_, decoratedCallback_) {
+			// TODO: this checks *class*, not *instance*. There's another way around.
             if (that.constructor.name == monad_.constructor.name) {
                 [monad, packedData, decoratedCallback] = [monad_, packedData_, decoratedCallback_];
             }
@@ -127,9 +149,12 @@ module.exports = {
     'async' : async,
     'chainSync' : chainSync,
     'chain' : chain,
+	'safeAsync' : safeAsync,
+	'safeChain' : safeChain,
     'IdentityMonad' : IdentityMonad,
     'CarryMonad' : CarryMonad,
     'DebugMonad' : DebugMonad,
     'MarcoPoloMonad' : MarcoPoloMonad,
+	'MixedMonad' : MixedMonad,
     'ParallelMonad' : ParallelMonad
 }
