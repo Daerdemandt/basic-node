@@ -2,6 +2,7 @@
 //TODO: stub the end of a chain with callback that does nothing
 //TODO: decide on handling of end-of-chain. Do we wrap? Do we care?
 //TODO: support generators of functions
+//TODO: IF-monad for try-retry stuff (carry - if - error)
 
 let async = (fun) => function(data, cb) {process.nextTick(() => cb(fun(data)));}
 let chainSync = (...funs) => function(data) {
@@ -167,7 +168,27 @@ class ErrorMonad extends CarryMonad('error') {
                 }
             }
         };
+        this.try = (labelName = 'unnamed') => this.operator(function(data, cb, monad, packedData){
+            packedData.trySavedValues = packedData.trySavedValues ? packedData.trySavedValues : {}; //TODO: solve this via CarryMonad
+            packedData.trySavedValues[labelName] = data;
+            console.log(JSON.stringify(packedData));
+            if (cb) cb(packedData.error, data);
+        });
+        this.retry = (labelName = 'unnamed') => this.operator(function(data, cb, monad, packedData){
+            //TODO: actually do something here
+        });
     };
+    operator(fun) {
+        let inner = super.operator(fun);
+        let result = (err, data, cb) => inner(data, cb);
+        result.absorbMonadicContext = inner.absorbMonadicContext;
+        return result;
+    };
+    pack(value, previous) { //TODO: solve this through updating CarryMonad, remove method from here
+        let result = previous ? previous : {'error' : null, 'strategy' : 'default'};
+        result.value = value;
+        return result;
+    }
     wrapNaiveCb(packedData, naiveCallback) {
         //return this.strategies[packedData.strategy](packedData, naiveCallback);
         return this.strategies['default'](packedData, naiveCallback);
