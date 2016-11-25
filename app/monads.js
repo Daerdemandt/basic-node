@@ -1,5 +1,7 @@
 //TODO: preserve function names while decorating
 //TODO: stub the end of a chain with callback that does nothing
+//TODO: decide on handling of end-of-chain. Do we wrap? Do we care?
+//TODO: support generators of functions
 
 let async = (fun) => function(data, cb) {process.nextTick(() => cb(fun(data)));}
 let chainSync = (...funs) => function(data) {
@@ -42,10 +44,13 @@ class IdentityMonad {
     unpack(packedData) {return packedData};
     process(packedData) {return packedData};
     decorate(fun) {
+        if (!fun) return null;
         let that = this;
         let result = function (packedData, decoratedCallback) {
             packedData = that.process(packedData);
-            let naiveCallback = function(value) {decoratedCallback(that.pack(value, packedData));};
+            let naiveCallback = decoratedCallback ? function(value) {
+                decoratedCallback(that.pack(value, packedData));
+            } : null;
             if ('absorbMonadicContext' in fun) {
                 fun.absorbMonadicContext(that, packedData, decoratedCallback);
             }
@@ -81,6 +86,9 @@ class IdentityMonad {
 let CarryMonad = (name='context', initial=null) => class CarryMonad_ extends IdentityMonad {
     pack(value, previous) {
         let result = { 'value' : value };
+        // TODO: instead of getting carry value only, get full object. Or carry it in context?
+        // Also, maybe use smarter objects rather than JSON ones? Either way, accessing all stuff as
+        // packedData.context.stuff is cumbersome, packedData.stuff or packedData.getStuff would be better
         result[name] = previous ? previous[name] : this.getInitialCarryValue();
         return result;
     }
@@ -145,6 +153,47 @@ class ParallelMonad extends CarryMonad('id') {
         });
     }
 }
+
+class ErrorMonad extends CarryMonad('error') {
+    constructor() {
+        super();
+        this.strategies = {
+            'default' : (packedData, naiveCallback) => function(error, result) {
+                if (error) {
+                    packedData.error = error;
+                    naiveCallback(result); // result is most likely to be undefined. However, we need to pass control next
+                } else {
+                    naiveCallback(result);
+                }
+            }
+        };
+    };
+    wrapNaiveCb(packedData, naiveCallback) {
+        //return this.strategies[packedData.strategy](packedData, naiveCallback);
+        return this.strategies['default'](packedData, naiveCallback);
+    };
+    decorate(fun) {
+        if (!fun) return null;
+        let that = this;
+        let result = function (packedData, decoratedCallback) {
+            packedData = that.process(packedData);
+            let naiveCallback = decoratedCallback ? that.wrapNaiveCb(packedData, function(value) {
+                decoratedCallback(that.pack(value, packedData));
+            }) : null;
+            if ('absorbMonadicContext' in fun) {
+                fun.absorbMonadicContext(that, packedData, decoratedCallback);
+            }
+            fun(packedData.error, that.unpack(packedData), naiveCallback);
+        }
+        if ('absorbMonadicContext' in fun) {
+            result.absorbMonadicContext = function(monad, packedData, decoratedCallback) {
+                fun.absorbMonadicContext(monad, packedData, decoratedCallback);
+            }
+        }
+        return result;
+    };
+}
+
 module.exports = {
     'async' : async,
     'chainSync' : chainSync,
@@ -156,5 +205,6 @@ module.exports = {
     'DebugMonad' : DebugMonad,
     'MarcoPoloMonad' : MarcoPoloMonad,
 	'MixedMonad' : MixedMonad,
+	'ErrorMonad' : ErrorMonad,
     'ParallelMonad' : ParallelMonad
 }
