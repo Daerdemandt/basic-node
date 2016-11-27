@@ -172,17 +172,13 @@ class ErrorMonad extends CarryMonad('error') {
         this.try = (labelName = 'unnamed') => this.operator(function(data, cb, monad, packedData){
             packedData.trySavedValues = packedData.trySavedValues ? packedData.trySavedValues : {}; //TODO: solve this via CarryMonad
             packedData.trySavedValues[labelName] = data;
-            console.log(JSON.stringify(packedData));
             if (cb) cb(packedData.error, data);
-        });
-        this.retry = (labelName = 'unnamed') => this.operator(function(data, cb, monad, packedData){
-            //TODO: actually do something here
         });
 		this.skip = (num=1) => this.operator(function(data, cb, monad, packedData) {
 			packedData.skip = num;
 			cb(packedData.error, data);
 		});
-		this.retry = (labelName = 'unnamed', test = (err) => true) => this.operator(function(data, cb, monad, packedData){
+		this.retry = (labelName = 'unnamed', test = (err) => err) => this.operator(function(data, cb, monad, packedData){
 			if (typeof test !== 'function') {
 				let value = test;
 				test = (err) => err == value;
