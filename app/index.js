@@ -2,6 +2,7 @@
 
 
 let express = require('express'),
+	cookieParser = require('cookie-parser'),
     mUrl = require('url'),
     http = require('http'),
     monads = require('./monads.js'),

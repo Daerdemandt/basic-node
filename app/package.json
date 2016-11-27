@@ -6,7 +6,12 @@
   "main": "index.js",
   "author": "Roman Kuzmichev <daerdemandt@gmail.com>",
   "dependencies": {
+    "cookie-parser": "^1.4.3",
     "express": "^4",
     "steamcommunity": "^3.28.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
