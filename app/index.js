@@ -9,7 +9,78 @@ let express = require('express'),
 
 let SteamCommunity = new CSteamCommunity();
 
+let opportunisticProcessing = function(options, callback) {
+	let E = new monads.ErrorMonad()
+	let instructions = [E.try('processing')];
+	for (const operation of options) {
+		instructions.push(operation);
+		instructions.push(E.retry('processing'));
+	}
+	instructions.pop();
+	instructions.push(callback);
+	return E.do(...instructions);
+};
 
+let mutateInput = (mutate, fun) => function(err, string, cb) {
+	try {fun(err, mutate(string), cb)} catch(error) {cb(error)};
+};
+
+let toSteamId = (string) => new CSteamCommunity.SteamID(string);
+
+let toSteamUser = function(err, id, cb) {
+	if (err) {
+		cb(err);
+		return;
+	}
+	if (!id) {
+		cb('Empty input provided');
+		return;
+	}
+    SteamCommunity.getSteamUser(id, cb);
+};
+
+
+let nameOutput = (name, fun) => (err, string, rawCb) => fun(err, string, (error, result) => rawCb(error, {'type':name, 'value' : result}));
+
+let isEvenString = (string) => parseInt(string.slice(-1)) % 2;
+let onlyIfNumeric = (fun=(x)=>x) => function(data) {
+	if(parseInt(data)) {
+		return fun(data);
+	} else {
+		throw `Expected numeric input, got ${data}`;
+	}
+};
+
+let urlToSteamId = function (url) {
+	let dissected = mUrl.parse(url);
+	if(dissected.hostname == 'steamcommunity.com') // may or may not start with 'http://'
+	{
+		let pathArray = dissected.pathname.split('/');
+		let trail = pathArray.pop();
+		return (trail == '' ? pathArray.pop() : trail); // may or may not end with trailing slash
+	}
+	else { return null; }
+};
+
+
+let methods = {
+	'asId64'	: nameOutput('id64', mutateInput(onlyIfNumeric(), toSteamUser)),
+	'asId3Tail'	: nameOutput('id3', mutateInput(
+		onlyIfNumeric((string) => toSteamId(`[U:1:${string}]`)),
+		toSteamUser
+	)),
+	'asOldTail'	: nameOutput('old', mutateInput(
+		onlyIfNumeric((string) => toSteamId(`STEAM_0:${isEvenString(string)}:${string}`)),
+		toSteamUser
+	)),
+	'asValidId'	: nameOutput('valid', toSteamUser),
+	'asUrl'		: nameOutput('url', mutateInput(urlToSteamId, toSteamUser))
+};
+
+let stringToSteamId = function(string, cb) {
+	let methodsToTry = ['asId64', 'asId3Tail', 'asOldTail', 'asValidId', 'asUrl'].map((name) => methods[name]);
+	opportunisticProcessing(methodsToTry, cb)(string);
+}
 
 const tests = {
     'steamID' : 'STEAM_0:0:61441014',
@@ -28,23 +99,10 @@ function checkOddnessOutputInt (input) {
 	let isEven = (tailNumber === parseFloat(tailNumber) ? !(tailNumber % 2) : void 0); // boolean!
 	return isEven ? '0' : '1';
 }
-
-let urlToSteamId = function (url) {
-	let dissected = mUrl.parse(url);
-	if(dissected.hostname == 'steamcommunity.com') // may or may not start with 'http://'
-	{
-		let pathArray = dissected.pathname.split('/');
-		let trail = pathArray.pop();
-		return (trail == '' ? pathArray.pop() : trail); // may or may not end with trailing slash
-	}
-	else { return null; }
-};
-
-let stringToSteamId = function(string, cb) {
+let stringToSteamIdOld = function(string, cb) {
     const notFound = 'Error: The specified profile could not be found.';
     let tryAsId = function (string, cb) {
         try {
-            console.log('trying ' + string);
             let id = new CSteamCommunity.SteamID(string);
             SteamCommunity.getSteamUser(id, cb);
         } catch(error) {
@@ -77,7 +135,6 @@ let stringToSteamId = function(string, cb) {
                 } else // assuming URL or (exotic SOB!) uniform SteamID
 		{
 		    let asURLTrail = urlToSteamId(string);
-			console.log(asURLTrail);
 		    if(parseInt(asURLTrail)) { // is a URL, also appearing to end in id64
 			tryAsId(asURLTrail, cb); // assume community/profiles/id64 url template, operate
 		    }
@@ -124,6 +181,8 @@ app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
         } else if (!data) {
             res.status(404).send({'error' : 'not found'});
         } else {
+			console.log(data.type);
+			data = data.value;
 		let theID = data.steamID; 
             res.send({
                 'name' : data.name,
