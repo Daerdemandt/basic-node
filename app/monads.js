@@ -3,6 +3,7 @@
 //TODO: decide on handling of end-of-chain. Do we wrap? Do we care?
 //TODO: support generators of functions
 //TODO: IF-monad for try-retry stuff (carry - if - error)
+//TODO: (err, data[, cb]) does not play nice with inherited opertors that do cb(data)
 
 let async = (fun) => function(data, cb) {process.nextTick(() => cb(fun(data)));}
 let chainSync = (...funs) => function(data) {
@@ -177,6 +178,25 @@ class ErrorMonad extends CarryMonad('error') {
         this.retry = (labelName = 'unnamed') => this.operator(function(data, cb, monad, packedData){
             //TODO: actually do something here
         });
+		this.skip = (num=1) => this.operator(function(data, cb, monad, packedData) {
+			packedData.skip = num;
+			cb(packedData.error, data);
+		});
+		this.retry = (labelName = 'unnamed', test = (err) => true) => this.operator(function(data, cb, monad, packedData){
+			if (typeof test !== 'function') {
+				let value = test;
+				test = (err) => err == value;
+			}
+			if (test(packedData.error)) {
+				packedData.error = null;
+				cb(packedData.error, packedData.trySavedValues[labelName]);
+			} else {
+				packedData.skip = 1; // skip next instruction only
+				cb(packedData.error, data);
+			}
+		});
+
+
     };
     operator(fun) {
         let inner = super.operator(fun);
@@ -198,6 +218,12 @@ class ErrorMonad extends CarryMonad('error') {
         let that = this;
         let result = function (packedData, decoratedCallback) {
             packedData = that.process(packedData);
+			if (packedData.skip) {
+				// TODO: only skip non-operators?
+				packedData.skip -= 1;
+				decoratedCallback(packedData);
+				return;
+			}
             let naiveCallback = decoratedCallback ? that.wrapNaiveCb(packedData, function(value) {
                 decoratedCallback(that.pack(value, packedData));
             }) : null;
