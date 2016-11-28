@@ -78,9 +78,8 @@ let methods = {
 	'asUrl'		: nameOutput('url', mutateInput(urlToSteamId, toSteamUser))
 };
 
-let stringToSteamId = function(string, cb) {
-	let methodsToTry = ['asId64', 'asId3Tail', 'asOldTail', 'asValidId', 'asUrl'].map((name) => methods[name]);
-	opportunisticProcessing(methodsToTry, cb)(string);
+let resolveSteamUser = function(string, methodsToTry, cb) {
+	opportunisticProcessing(methodsToTry.map((name) => methods[name]), cb)(string);
 }
 
 const tests = {
@@ -138,7 +137,9 @@ app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
             }); //TODO: more fields here
         }
     };
-    stringToSteamId(decodeURIComponent(req.query.string.trim()), ret);
+	let methodsToTry = ['asId64', 'asId3Tail', 'asOldTail', 'asValidId', 'asUrl'],
+		query = decodeURIComponent(req.query.string.trim());
+	resolveSteamUser(query, methodsToTry, ret);
 });
 
 app.get('/', function(req, res, next) {
