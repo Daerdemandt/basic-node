@@ -29,10 +29,21 @@
                 <div class="col-md-6">
 					<h1>
 						<a href="#" class="header_link">SteamID lookup</a>
-                        <p class="header_text">Look up Steam™ users by their steam IDs (ID3&nbsp;and&nbsp;ID64&nbsp;too), logins and vanity URLs</p>
+                        <p class="header_text">Look up Steam™ users by their Steam IDs (ID3&nbsp;and&nbsp;ID64&nbsp;too), logins and vanity URLs</p>
 					</h1>
 				</div>
 			</header>
+			<div class="row" id='settings_row'>
+				<div class="col-md-2 col-md-offset-3">
+					<h4>
+						Detection preferences:
+					</h4>
+				</div>
+				<div class="col-md-4">
+					<button class="btn" type="button" onclick="settings.methodSet = 'default'; saveSettings(); showSettings();"> default </button>
+					<button class="btn" type="button" onclick="settings.methodSet = 'oldFirst'; saveSettings(); showSettings();"> oldFirst </button>
+				</div>
+			</div>
 			<div class="row" id='input_row'>
 				<div class="col-md-3"></div>
 				<div id='inputarea00' class='col-md-6'>
@@ -53,7 +64,5 @@
 					</div>
 			</footer>
 		</div>
-		<button type="button" onclick="settings.methodSet = 'default'; saveSettings(); showSettings();"> default </button>
-		<button type="button" onclick="settings.methodSet = 'oldFirst'; saveSettings(); showSettings();"> oldFirst </button>
 	</body>
 </html>

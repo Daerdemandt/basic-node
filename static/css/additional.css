@@ -71,3 +71,6 @@ body {
   height: 150px;
   background-color: #ffffff;
 }
+#settings_row {
+	margin-top: 2em;
+}
