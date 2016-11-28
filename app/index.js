@@ -93,6 +93,7 @@ const tests = {
 
 
 let app = express();
+app.use(cookieParser());
 
 ///*
 //TODO: implement opportunistingProcessing with something like this:
@@ -137,8 +138,21 @@ app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
             }); //TODO: more fields here
         }
     };
-	let methodsToTry = ['asId64', 'asId3Tail', 'asOldTail', 'asValidId', 'asUrl'],
+	let defaultSettings = {'methodSet':'default', 'methods':[], 'autocopy':null},
+		settings = JSON.parse(req.cookies.settings) || defaultSettings,
+		methodSets = {
+			'default' : ['asId64', 'asId3Tail', 'asOldTail', 'asValidId', 'asUrl'],
+			'oldFirst' : ['asOldTail', 'asId64', 'asId3Tail', 'asValidId', 'asUrl']
+		};
+
+	let methodsToTry = [],
 		query = decodeURIComponent(req.query.string.trim());
+
+	if (settings.methods && settings.methods.length) {
+		//TODO: support custom methods ordering
+	} else {
+		methodsToTry = methodSets[settings.methodSet] || methodSets.default;
+	}
 	resolveSteamUser(query, methodsToTry, ret);
 });
 

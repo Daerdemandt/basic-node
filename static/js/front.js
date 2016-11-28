@@ -144,3 +144,19 @@ function renderWaitingAni() {
 		</div>`;
 }
 
+let defaultSettings = {'methodSet':'default', 'methods':[], 'autocopy':null},
+	settings = {};
+
+let saveSettings = function() {
+	document.cookie = `settings=${encodeURIComponent(JSON.stringify(settings))};max-age=${60*60*24*365}`;
+};
+
+let loadSettings = function() {
+	let settingsCookie = document.cookie.replace(/(?:(?:^|.*;\s*)settings\s*\=\s*([^;]*).*$)|^.*$/,"$1");
+	settings = settingsCookie ? JSON.parse(decodeURIComponent(settingsCookie)) : defaultSettings;
+};
+loadSettings();
+
+let showSettings = function() {
+	alert(JSON.stringify(settings));
+};
