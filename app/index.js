@@ -43,7 +43,7 @@ let toSteamUser = function(err, id, cb) {
 
 let nameOutput = (name, fun) => (err, string, rawCb) => fun(err, string, (error, result) => rawCb(error, {'type':name, 'value' : result}));
 
-let isEvenString = (string) => parseInt(string.slice(-1)) % 2;
+let isOddString = (string) => parseInt(string.slice(-1)) % 2;
 let onlyIfNumeric = (fun=(x)=>x) => function(data) {
 	if(parseInt(data)) {
 		return fun(data);
@@ -71,7 +71,7 @@ let methods = {
 		toSteamUser
 	)),
 	'asOldTail'	: nameOutput('old', mutateInput(
-		onlyIfNumeric((string) => toSteamId(`STEAM_0:${isEvenString(string)}:${string}`)),
+		onlyIfNumeric((string) => toSteamId(`STEAM_0:${isOddString(string)}:${string}`)),
 		toSteamUser
 	)),
 	'asValidId'	: nameOutput('valid', toSteamUser),
