@@ -95,71 +95,8 @@ const tests = {
 
 let app = express();
 
-function checkOddnessOutputInt (input) {
-	let tailNumber = +input.split('').pop(); // WAAAAAAAAGH
-	let isEven = (tailNumber === parseFloat(tailNumber) ? !(tailNumber % 2) : void 0); // boolean!
-	return isEven ? '0' : '1';
-}
-let stringToSteamIdOld = function(string, cb) {
-    const notFound = 'Error: The specified profile could not be found.';
-    let tryAsId = function (string, cb) {
-        try {
-            let id = new CSteamCommunity.SteamID(string);
-            SteamCommunity.getSteamUser(id, cb);
-        } catch(error) {
-            if (error.stack.startsWith('Error: SteamID must stand for an individual account in the public')) {
-                cb(null, null); // not found
-            } else if (error.stack.startsWith('Error: Unknown SteamID input format')) {
-                cb('Unsupported format, but we are working on it'); //TODO: support URLs
-            } else {
-                cb(error);
-            }
-        };
-    };
-
-    SteamCommunity.getSteamUser(string, function(err, result) {
-        if (!err) {
-            cb(null, result);
-        } else { 
-            if (err.stack.startsWith(notFound)) {
-                let idParity = checkOddnessOutputInt(string);
-		let queryMethodsArray = []; // decide if a particular query is sane, fill array up, then pass it to worker
-		if (parseInt(string)) {
-			
-                    queryMethodsArray.push('STEAM_0:' + idParity + ':' + string);
-		    queryMethodsArray.push(string);
-                    if(Number.isSafeInteger(parseInt(string))) {
-			queryMethodsArray.push('[U:1:' + string + ']');
-		    }
-		    queryMethodsArray.reverse();
-                    tryUntilResult(queryMethodsArray, tryAsId, cb, null); // looks like v3 is the main priority
-                } else // assuming URL or (exotic SOB!) uniform SteamID
-		{
-		    let asURLTrail = urlToSteamId(string);
-		    if(parseInt(asURLTrail)) { // is a URL, also appearing to end in id64
-			tryAsId(asURLTrail, cb); // assume community/profiles/id64 url template, operate
-		    }
-		    else { // uniform SteamID or a URL appearing to end in customURL
-		    	   if (mUrl.parse(string).hostname == 'steamcommunity.com') { // can distinguish vaild hostname, MUST be a URL
-			    	SteamCommunity.getSteamUser(asURLTrail, function(final_error, result){ 
-				if(!final_error) {
-					cb(null, result); // assume community/id/customID url template, operate
-				} else {
-					cb(final_error); // we support no more input formats for now. Pass error down.
-				}
-		       
-			});} else { // most definitely a uniform ID, if not, well, we can always pretend nothing happened. 
-				tryAsId(string, cb);
-			}
-
-		    }
-		}
-            }
-        }
-    });  
-			
-};
 ///*
+//TODO: implement opportunistingProcessing with something like this:
 let tryUntilResult = function(items, process, successCallback, stubData) {
     if (0 == items.length) {
         successCallback(stubData);
