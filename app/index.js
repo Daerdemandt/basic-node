@@ -139,7 +139,7 @@ app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
         }
     };
 	let defaultSettings = {'methodSet':'default', 'methods':[], 'autocopy':null},
-		settings = JSON.parse(req.cookies.settings) || defaultSettings,
+		settings = cookieParser.JSONCookie(req.cookies.settings) || defaultSettings,
 		methodSets = {
 			'default' : ['asId64', 'asId3Tail', 'asOldTail', 'asValidId', 'asUrl'],
 			'oldFirst' : ['asOldTail', 'asId64', 'asId3Tail', 'asValidId', 'asUrl']
