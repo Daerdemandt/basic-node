@@ -57,13 +57,19 @@ let onlyIfNumeric = (fun=(x)=>x) => function(data) {
 
 let urlToSteamId = function (url) {
 	let dissected = mUrl.parse(url);
-	if(dissected.hostname == 'steamcommunity.com') // may or may not start with 'http://'
-	{
-		let pathArray = dissected.pathname.split('/');
-		let trail = pathArray.pop();
-		return (trail == '' ? pathArray.pop() : trail); // may or may not end with trailing slash
+	if(dissected.hostname == 'steamcommunity.com') {
+		if (dissected.pathname.startsWith('/id/')) {
+			// '/id/gaben/...' -> 'gaben'
+			return dissected.pathname.split('/')[2];
+		} else if (dissected.pathname.startsWith('/profiles/')) {
+			// '/profiles/76561197968052866/...' -> '76561197968052866'
+			return dissected.pathname.split('/')[2];
+		} else {
+			throw `'${url}' does not look like steamcommunity profile url`;
+		}
+	} else {
+		throw `'${url}' does not look like steamcommunity url`;
 	}
-	else { return null; }
 };
 
 
