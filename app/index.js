@@ -92,13 +92,24 @@ let resolveSteamUser = function(string, methodsToTry, cb) {
 }
 
 const tests = {
-    'steamID' : 'STEAM_0:0:61441014',
-    'steamID3' : '[U:1:122882028]',
+    //'steamID' : 'STEAM_0:0:61441014',
+    //'steamID3' : '[U:1:122882028]',
     'steamID64' : '76561198083147756',
     'customURL' : 'daerdemandt',
     'name' : 'Daerdemandt',
     'profile' : 'http://steamcommunity.com/profiles/76561198083147756'
 };
+
+for (const testCase in tests) {
+	const methods = ['asId64', 'asId3Tail', 'asOldTail', 'asValidId', 'asUrl'];
+	resolveSteamUser(tests[testCase], methods, function(err, result) {
+		if (err || result.value.name != 'Daerdemandt') {
+			console.log(`Startup test failed for ${testCase}`);
+			console.log(err || `'${result.value.name}' is not Daerdemandt`);
+			process.exit();
+		}
+	});
+}
 
 
 let app = express();
