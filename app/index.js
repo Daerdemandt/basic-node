@@ -5,22 +5,25 @@ let express = require('express'),
 	cookieParser = require('cookie-parser'),
     mUrl = require('url'),
     http = require('http'),
-    monads = require('./monads.js'),
     CSteamCommunity = require('steamcommunity');
 
 let SteamCommunity = new CSteamCommunity();
 
 let opportunisticProcessing = function(options, callback) {
-	let E = new monads.ErrorMonad()
-	let instructions = [E.try('processing')];
-	for (const operation of options) {
-		instructions.push(operation);
-		instructions.push(E.retry('processing'));
+	// Try the first option. If it fails - proceed with the rest recursively.
+	if (!options.length) {
+		return (data) => callback({error: `No methods were able to process '${data}'`});
+	} else {
+        let [first, rest] = [options[0], options.slice(1)];
+		return (data) => first(null, data, function(err, result) {
+			if (!err) {
+				return callback(null, result);
+			} else {
+				return opportunisticProcessing(rest, callback)(data);
+			}
+		});
 	}
-	instructions.pop();
-	instructions.push(callback);
-	return E.do(...instructions);
-};
+}
 
 let mutateInput = (mutate, fun) => function(err, string, cb) {
 	try {fun(err, mutate(string), cb)} catch(error) {cb(error)};
@@ -95,23 +98,6 @@ const tests = {
 let app = express();
 app.use(cookieParser());
 
-///*
-//TODO: implement opportunistingProcessing with something like this:
-let tryUntilResult = function(items, process, successCallback, stubData) {
-    if (0 == items.length) {
-        successCallback(stubData);
-    } else {
-        let [current, rest] = [items[0], items.slice(1)];
-        process(current, function(err, data) {
-            if (err || data) {
-                successCallback(err, data);
-            } else { // no errors, but we need to try other options
-                tryUntilResult(rest, process, successCallback, stubData);
-            }
-        });
-    }
-}
-//*/
 app.get('/api/arbitraryStringToSteamId', function(req, res, next) {
     let ret = function(error, data) {
         if (error) {
