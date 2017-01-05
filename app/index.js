@@ -56,14 +56,15 @@ let onlyIfNumeric = (fun=(x)=>x) => function(data) {
 };
 
 let urlToSteamId = function (url) {
+	// fail or return something SteamCommunity.getSteamUser can work with
 	let dissected = mUrl.parse(url);
 	if(dissected.hostname == 'steamcommunity.com') {
 		if (dissected.pathname.startsWith('/id/')) {
 			// '/id/gaben/...' -> 'gaben'
 			return dissected.pathname.split('/')[2];
 		} else if (dissected.pathname.startsWith('/profiles/')) {
-			// '/profiles/76561197968052866/...' -> '76561197968052866'
-			return dissected.pathname.split('/')[2];
+			// '/profiles/76561197968052866/...' -> CSC.SID('76561197968052866')
+			return new CSteamCommunity.SteamID(dissected.pathname.split('/')[2]);
 		} else {
 			throw `'${url}' does not look like steamcommunity profile url`;
 		}
@@ -83,7 +84,8 @@ let methods = {
 		onlyIfNumeric((string) => toSteamId(`STEAM_0:${isOddString(string)}:${string}`)),
 		toSteamUser
 	)),
-	'asValidId'	: nameOutput('valid', toSteamUser),
+	'asValidId'	: nameOutput('valid', mutateInput(toSteamId, toSteamUser)),
+	'asName'	: nameOutput('name', toSteamUser),
 	'asUrl'		: nameOutput('url', mutateInput(urlToSteamId, toSteamUser))
 };
 
@@ -91,24 +93,37 @@ let resolveSteamUser = function(string, methodsToTry, cb) {
 	opportunisticProcessing(methodsToTry.map((name) => methods[name]), cb)(string);
 }
 
-const tests = {
-    //'steamID' : 'STEAM_0:0:61441014',
-    //'steamID3' : '[U:1:122882028]',
+const testsSure = {
+    'steamID' : 'STEAM_0:0:61441014',
+    'steamID3' : '[U:1:122882028]',
     'steamID64' : '76561198083147756',
-    'customURL' : 'daerdemandt',
+    'customUrlPiece' : 'daerdemandt',
     'name' : 'Daerdemandt',
-    'profile' : 'http://steamcommunity.com/profiles/76561198083147756'
+    'customUrl' : 'http://steamcommunity.com/id/daerdemandt',
+    'profileUrl' : 'http://steamcommunity.com/profiles/76561198083147756'
 };
+const testsAmbiguous = {
+	'ID3tail' : {data:'122882028', method:'asId3Tail'},
+	'oldTail' : {data:'61441014', method:'asOldTail'}
+}
 
-for (const testCase in tests) {
-	const methods = ['asId64', 'asId3Tail', 'asOldTail', 'asValidId', 'asUrl'];
-	resolveSteamUser(tests[testCase], methods, function(err, result) {
+const runTest = function(name, data, methods) {
+	resolveSteamUser(data, methods, function(err, result) {
 		if (err || result.value.name != 'Daerdemandt') {
-			console.log(`Startup test failed for ${testCase}`);
+			console.log(`Startup test failed for ${name}`);
 			console.log(err || `'${result.value.name}' is not Daerdemandt`);
 			process.exit();
-		}
+		} else {console.log(`Sanity check successful at ${name} : ${result.type}`)}
 	});
+}
+
+for (const testCase in testsSure) {
+	//const methods = ['asId64', 'asId3Tail', 'asOldTail', 'asValidId', 'asUrl'];
+	const methods = ['asId64', 'asValidId', 'asName', 'asUrl', 'asId3Tail', 'asOldTail'];
+	runTest(testCase, testsSure[testCase], methods);
+}
+for (const name in testsAmbiguous) {
+	runTest(name, testsAmbiguous[name].data, [testsAmbiguous[name].method]);
 }
 
 
