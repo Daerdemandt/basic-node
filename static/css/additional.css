@@ -73,4 +73,6 @@ body {
 }
 #settings_row {
 	margin-top: 2em;
+	/* This functionality is not ready and it's necessity is dubious */
+	display: none;
 }
