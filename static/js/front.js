@@ -114,7 +114,7 @@ function formColons(arg) { // for each JSON key-value pair, generate a colon.
 				    <img class="app-cblabel" src="/static/clipboard.png">
 				</button>
 		        <span id="${key}">${key.toString() == 'profileURL' ?
-			 		'<a href="' + arg[key].toString() + '">'+ arg[key].toString() +'</a>' 
+					'<a href="' + arg[key].toString() + '" target="_blank">'+ arg[key].toString() +'</a>'
 				: 
 					(arg[key].toString())}</span>
 		    </div>`;
