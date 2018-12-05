@@ -4,7 +4,23 @@ const mUrl = require('url'),
     http = require('http'),
     CSteamCommunity = require('steamcommunity');
 
+
 let SteamCommunity = new CSteamCommunity();
+
+const debugRequest = false;
+
+if (debugRequest) {
+	const req = SteamCommunity.request;
+	SteamCommunity.request = (options, cb) => {
+		console.log('Request is happening')
+		const wrappedCb = (err, response, body) => {
+			console.log(response.statusCode, body);
+			return cb(err, response, body);
+		}
+		const result = req(options, wrappedCb);
+		return result;
+	}
+}
 
 let opportunisticProcessing = function(options, callback) {
 	// Try the first option. If it fails - proceed with the rest recursively.
@@ -113,15 +129,17 @@ const testsAmbiguous = {
 
 const runTest = function(name, data, methods) {
 	resolveSteamUser(data, methods, function(err, result) {
-		if (err || result.value.name != 'Daerdemandt') {
+		if (err || result.value.name.toUpperCase() != 'Daerdemandt'.toUpperCase()) {
 			console.log(`Startup test failed for ${name}`);
 			console.log(err || `'${result.value.name}' is not Daerdemandt`);
 			process.exit();
-		} //else {console.log(`Sanity check successful at ${name} : ${result.type}`)}
+		} else {console.log(`Sanity check successful at ${name} : ${result.type}`);}
 	});
 }
 
 const runTests = function() {
+	const justPoC = false;
+	if (justPoC) return runTest('steamID64', testsSure['steamID64'], ['asValidId']);
 	Object.keys(testsSure).forEach(name => runTest(name, testsSure[name], methodSets.default));
 	Object.keys(testsAmbiguous).forEach(
 		(name) => runTest(name, testsAmbiguous[name].data, [testsAmbiguous[name].method])
